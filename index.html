@@ -99,7 +99,9 @@ dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.l
 .slot-top{display:flex;align-items:center;gap:10px;background:var(--bg);padding:12px 13px;font-weight:800}.slot-top input{width:17px;height:17px;accent-color:var(--t2);cursor:pointer}
 .slot-fields{padding:14px}.slot-fields[hidden]{display:none}.slot-disabled{opacity:.75}
 .notice{border-left:4px solid var(--t2);background:var(--bg);padding:10px 13px;margin:13px 0;font-size:.85rem;color:var(--muted)}
-#toast{position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 17px;border-radius:7px;box-shadow:var(--shadow);display:none;max-width:calc(100vw - 35px);text-align:center;font-size:.87rem}#toast.show{display:block}
+#toast{position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 17px;border-radius:7px;box-shadow:var(--shadow);display:none;max-width:calc(100vw - 35px);text-align:center;font-size:.87rem}#toast.show{display:block}body:has(dialog[open]) #toast{display:none!important}
+.login-error{background:#FFF0F0;color:#99212C;border:1px solid #E99CA4;border-left:5px solid #D9464D;border-radius:9px;padding:12px 14px;font-weight:700;font-size:.92rem;line-height:1.4}
+:root[data-theme="dark"] .login-error{background:#42232A;color:#FFD5D9;border-color:#9B4855}
 .dialog-feedback{margin:0 0 18px;padding:13px 15px;border-radius:9px;border:1px solid var(--t1);border-left:5px solid var(--t1);background:var(--bg);color:var(--ink);font-size:.93rem;font-weight:650;line-height:1.45;overflow-wrap:anywhere}
 .dialog-feedback[hidden]{display:none!important}
 [hidden]{display:none!important}:focus-visible{outline:3px solid var(--t2);outline-offset:3px}
@@ -171,7 +173,7 @@ dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.l
   <dialog id="loginDialog" aria-labelledby="loginTitle"><div class="dialog-inner">
     <div class="dialog-head"><div><h2 id="loginTitle">Admin-Anmeldung</h2><p>Nur die Verwaltung kann Termine verändern.</p></div><button type="button" class="close" data-close="loginDialog" aria-label="Schließen">×</button></div>
     <div id="loginNotice" class="notice" hidden></div>
-    <form id="loginForm" class="form-grid">
+    <form id="loginForm" class="form-grid"><div id="loginError" class="login-error wide" role="alert" aria-live="assertive" hidden></div>
       <div class="field wide"><label for="loginUser">Benutzername</label><input id="loginUser" name="username" autocomplete="username" value="called_michi15" required></div>
       <div class="field wide"><label for="loginPassword">Passwort</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required></div>
       <div class="form-actions wide"><button class="primary" id="loginSubmit" type="submit">Anmelden</button></div>
@@ -446,6 +448,13 @@ function showToast(message){
   document.querySelectorAll(".dialog-feedback").forEach(el=>{el.hidden=true;});
   if(activeDialog){
     toast.classList.remove("show");
+    if(activeDialog.id==="loginDialog"){
+      const inlineError=$("loginError");
+      inlineError.textContent=message;
+      inlineError.hidden=false;
+      $("loginPassword").setAttribute("aria-invalid","true");
+      return;
+    }
     let feedback=activeDialog.querySelector(".dialog-feedback");
     if(!feedback){
       feedback=document.createElement("div");
@@ -553,6 +562,9 @@ function renderAll(){const exams=allExams();$("pageTitle").textContent=state.tit
 }
 function switchDialog(which){
   document.querySelectorAll(".dialog-feedback").forEach(el=>{el.hidden=true;});
+  $("toast").classList.remove("show");
+  $("loginError").hidden=true;
+  $("loginPassword").removeAttribute("aria-invalid");
   for(const id of ["settingsDialog","loginDialog","adminDialog"])if($(id).open)$(id).close();
   if(which)$(which).showModal();
 }
@@ -625,7 +637,7 @@ function bindUI(){
     const disabled=!firebaseEnabled();$("loginNotice").hidden=!disabled;
     $("loginNotice").textContent=disabled?"Die Website läuft derzeit als lokale Vorschau. Um Termine für alle zu speichern und den Admin-Login zu aktivieren, zuerst Firebase gemäß README.md einrichten.":"";
     $("loginSubmit").disabled=disabled;switchDialog("loginDialog");});
-  $("loginForm").addEventListener("submit",async event=>{event.preventDefault();if(busy)return;
+  $("loginForm").addEventListener("submit",async event=>{event.preventDefault();if(busy)return;$("loginError").hidden=true;$("loginPassword").removeAttribute("aria-invalid");
     if($("loginUser").value.trim()!==CONFIG.adminUsername){showToast("Benutzername oder Passwort falsch.");return;}
     if(!cloud){showToast("Firebase ist noch nicht verfügbar.");return;}
     toggleBusy(true);
