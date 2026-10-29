@@ -18,7 +18,7 @@
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:18px}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.48 'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif}
 button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--t2)}a:hover{text-decoration:underline}
-.wrap{max-width:1100px;margin:auto;padding:28px 22px 70px}
+.wrap{width:100%;max-width:none;margin:auto;padding:28px clamp(16px,2.8vw,56px) 70px}
 .top{display:flex;gap:18px;align-items:flex-start;justify-content:space-between}
 .brand h1{font-size:clamp(2.2rem,5.2vw,3.55rem);font-weight:800;font-stretch:75%;letter-spacing:-.03em;line-height:.96;margin:4px 0 12px}
 .sub{font-size:.94rem;color:var(--muted);margin:0 0 22px}
@@ -37,6 +37,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--t2
 .mini-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
 .months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:37px}
 .month{background:var(--paper);border:1px solid var(--line);padding:15px 16px 18px;min-width:0}
+@media(min-width:1800px){.months{gap:22px}.month{padding:22px 24px 24px}}
 .month h2{font-weight:750;font-stretch:85%;font-size:1.25rem;display:flex;gap:8px;justify-content:space-between;align-items:baseline;margin:0 0 14px}
 .month h2 span{font-size:.8rem;color:var(--muted);font-stretch:100%;font-weight:500;white-space:nowrap}
 .month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.dow{font-size:.73rem;color:var(--muted);text-align:center;padding-bottom:3px}
@@ -44,6 +45,23 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--t2
 .day.empty{background:transparent}.day.weekend{opacity:.78}.day.today .num{background:var(--today);color:var(--paper);padding:0 4px;border-radius:3px}.day .num{font-weight:650;font-size:.82rem}
 .cal-ev{display:block;width:100%;border:0;border-left:3px solid var(--c);border-radius:2px;background:color-mix(in srgb,var(--c) 15%,var(--paper));color:var(--ink);text-align:left;padding:2px 4px;margin-top:3px;font-size:.69rem;font-weight:700;line-height:1.27;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:17px}
 .cal-ev:hover{background:color-mix(in srgb,var(--c) 28%,var(--paper))}.cal-ev:focus-visible{outline:2px solid var(--c)}
+/* Fachnamen sind in allen Kalenderansichten vollständig lesbar. */
+.day{min-height:100px;padding:7px 7px 9px}.day .num{font-size:.88rem}.mobile-weekday,.mobile-month{display:none}.day-events{display:grid;gap:4px;margin-top:6px;min-width:0}
+.cal-ev{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;hyphens:auto;font-size:clamp(.74rem,.85vw,.93rem);min-height:0;padding:6px 7px;line-height:1.27;margin:0;border-left-width:4px}
+.calendar-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 15px}
+.view-switch{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.view-switch button{border:0;border-radius:7px;background:transparent;color:var(--muted);padding:8px 13px;font-size:.88rem;font-weight:750;white-space:nowrap}
+.view-switch button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.calendar-nav{display:flex;align-items:center;gap:8px;min-width:0}
+.calendar-nav[hidden]{display:none}.calendar-nav strong{font-size:.95rem;min-width:165px;text-align:center;line-height:1.25}
+.calendar-nav button{border:1px solid var(--line);background:var(--paper);border-radius:8px;color:var(--ink);font-weight:700;padding:8px 12px}
+.calendar-nav button:hover{border-color:var(--muted)}
+.months.single-view{grid-template-columns:1fr}.months.single-view .month{max-width:none}
+.months.single-view .day{min-height:120px}.months.single-view .cal-ev{font-size:.91rem}
+.months.week-view{grid-template-columns:1fr}.months.week-view .month h2{margin-bottom:15px}.months.week-view .day{min-height:155px}
+.no-month-exams{color:var(--muted);font-size:.87rem;margin-top:10px}
+@media(min-width:701px) and (max-width:1350px){.months:not(.single-view):not(.week-view){grid-template-columns:1fr}.months:not(.single-view):not(.week-view) .day{min-height:100px}}
+
 .list-head{display:flex;gap:16px;align-items:end;justify-content:space-between;flex-wrap:wrap;margin:0 0 12px}
 .list-head h2{font-stretch:75%;font-weight:800;font-size:1.9rem;margin:0}.list-head p{font-size:.85rem;color:var(--muted);margin:0 0 4px}
 .items{display:grid;gap:10px}.item{--c:var(--t1);display:grid;grid-template-columns:82px minmax(0,1fr) auto;gap:18px;background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--c);padding:15px 16px;transition:box-shadow .15s;scroll-margin-top:18px}
@@ -83,8 +101,23 @@ dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.l
 .notice{border-left:4px solid var(--t2);background:var(--bg);padding:10px 13px;margin:13px 0;font-size:.85rem;color:var(--muted)}
 #toast{position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 17px;border-radius:7px;box-shadow:var(--shadow);display:none;max-width:calc(100vw - 35px);text-align:center;font-size:.87rem}#toast.show{display:block}
 [hidden]{display:none!important}:focus-visible{outline:3px solid var(--t2);outline-offset:3px}
-@media(max-width:700px){.wrap{padding:22px 14px 55px}.months{grid-template-columns:1fr}.month{padding:12px}.next-grid{gap:9px}.next{padding:13px;min-height:135px}.next .big{font-size:2rem}.item{grid-template-columns:62px minmax(0,1fr);gap:11px;padding:11px}.date-col .d{font-size:2rem}.side{grid-column:1/-1;text-align:left;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:1px}.countdown{margin:0}.day{min-height:51px;padding:3px}.cal-ev{font-size:0;height:7px;min-height:7px;padding:0;border:0;background:var(--c)}.dialog-inner{padding:17px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.tools{gap:5px}.pill-button{font-size:.78rem;padding:8px 9px}}
-@media(max-width:400px){.next-grid{grid-template-columns:1fr}.next{min-height:110px}.brand h1{font-size:2.3rem}.day{min-height:45px}.sub{font-size:.82rem}}
+@media(max-width:700px){
+.wrap{padding:20px 13px 55px}.months,.months.single-view,.months.week-view{grid-template-columns:1fr;gap:13px}.month{padding:16px 13px}.month h2{font-size:1.18rem}
+.next-grid{gap:9px}.next{padding:13px;min-height:135px}.next .big{font-size:2rem}
+.item{grid-template-columns:62px minmax(0,1fr);gap:11px;padding:11px}.date-col .d{font-size:2rem}
+.side{grid-column:1/-1;text-align:left;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:1px}.countdown{margin:0}
+/* Auf kleinen Displays wird der Monat zu gut lesbaren Tageskarten statt Mini-Punkten. */
+.month-grid{display:flex;flex-direction:column;gap:7px}.dow,.day.empty,.day:not(.has-exam){display:none}
+.day.has-exam,.months.single-view .day.has-exam,.months.week-view .day.has-exam{display:grid;grid-template-columns:69px minmax(0,1fr);gap:9px;min-height:70px;padding:11px;border:1px solid var(--line);border-radius:7px;background:var(--bg);opacity:1;align-items:start}
+.day .num{font-size:.9rem;font-weight:800;line-height:1.25}.mobile-weekday,.mobile-month{display:inline}.day-events{margin:0;gap:6px}
+.cal-ev,.months.single-view .cal-ev{font-size:.93rem;line-height:1.3;padding:8px 9px;min-height:34px}
+.months.week-view .day{display:grid;grid-template-columns:69px minmax(0,1fr);min-height:60px;padding:10px 11px;border:1px solid var(--line);border-radius:7px;background:var(--bg);align-items:center}
+.months.week-view .day:not(.has-exam){display:grid;opacity:.7}.months.week-view .day:not(.has-exam) .day-events:after{content:"Keine Prüfung";color:var(--muted);font-size:.84rem}
+.calendar-toolbar{align-items:stretch;gap:10px}.view-switch{width:100%}.view-switch button{flex:1;min-width:0;padding:10px 4px;font-size:.82rem}
+.calendar-nav{justify-content:space-between;width:100%}.calendar-nav strong{min-width:0;flex:1;font-size:.89rem}.calendar-nav button{padding:8px 10px}
+.dialog-inner{padding:17px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.tools{gap:5px}.pill-button{font-size:.78rem;padding:8px 9px}
+}
+@media(max-width:400px){.next-grid{grid-template-columns:1fr}.next{min-height:110px}.brand h1{font-size:2.3rem}.sub{font-size:.82rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
@@ -101,7 +134,20 @@ dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.l
       <button class="chip" data-filter="wh" type="button" aria-pressed="true" style="--c:var(--wh)"><span class="dot"></span>WH-Termin</button>
     </div>
     <div class="status" id="connectionStatus" role="status" hidden></div>
-    <section class="months" id="months" aria-label="Monatsübersicht"></section>
+    <nav class="calendar-toolbar" aria-label="Kalenderansicht wechseln">
+      <div class="view-switch" role="group" aria-label="Kalenderansicht">
+        <button type="button" data-calendar-view="all" aria-pressed="true">Alle Monate</button>
+        <button type="button" data-calendar-view="month" aria-pressed="false">1 Monat</button>
+        <button type="button" data-calendar-view="week" aria-pressed="false">7 Tage</button>
+      </div>
+      <div id="calendarNav" class="calendar-nav" hidden>
+        <button id="calendarPrev" type="button" aria-label="Vorheriger Zeitraum">‹</button>
+        <strong id="calendarPeriod" aria-live="polite"></strong>
+        <button id="calendarNext" type="button" aria-label="Nächster Zeitraum">›</button>
+        <button id="calendarToday" type="button">Heute</button>
+      </div>
+    </nav>
+    <section class="months" id="months" aria-label="Prüfungskalender"></section>
     <section aria-label="Alle Prüfungstermine">
       <div class="list-head"><h2>Alle Termine</h2><p>Du kannst deine Anmeldung hier persönlich markieren. Sie wird nur in deinem Browser gespeichert.</p></div>
       <div id="items" class="items"></div>
@@ -380,6 +426,13 @@ let editingSubjectId = null;
 let busy = false;
 let prefs = {theme:"auto",colors:{...DEFAULT_COLORS}};
 let visible = {t1:true,t2:true,wh:true};
+const savedCalendarView = (()=>{try{return localStorage.getItem("stundenplan-kalenderansicht-v1");}catch{return null;}})();
+let calendarView = ["all","month","week"].includes(savedCalendarView) ? savedCalendarView : (window.innerWidth <= 700 ? "month" : "all");
+let calendarAnchor = null;
+function firstRelevantDate(exams){return parseDate(exams.find(e=>dateDiff(e.date)>=0)?.date || exams[0]?.date) || today();}
+function beginWeek(date){const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());d.setDate(d.getDate()-(d.getDay()+6)%7);return d;}
+function addDays(date,count){const d=new Date(date);d.setDate(d.getDate()+count);return d;}
+function dateKey(date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;}
 let registered = {};
 try { const saved=JSON.parse(localStorage.getItem("stundenplan-registriert-v1")||"{}"); if(saved&&typeof saved==="object") registered=saved; } catch{}
 try { const saved=JSON.parse(localStorage.getItem("stundenplan-settings-v1")||"{}"); if(["auto","light","dark"].includes(saved.theme)) prefs.theme=saved.theme; if(saved.colors) for(const k of KINDS) if(/^#[0-9a-f]{6}$/i.test(saved.colors[k])) prefs.colors[k]=saved.colors[k]; } catch{}
@@ -397,28 +450,57 @@ function renderNext(){const exams=allExams();const el=$("nextGrid");el.innerHTML
   const d=parseDate(match.date),n=dateDiff(match.date);let big=n===0?"Heute":n===1?"Morgen":`${n} Tage`;
   return `<div class="next" style="--c:var(--${k})"><small>Nächster ${esc(NAMES[k])}</small><div class="big">${big}</div><div class="what">${esc(shortly(match))}</div><small>${WEEKDAYS[d.getDay()]}, ${dateText(match.date)}${match.von?`, ${esc(match.von)} Uhr`:""}</small></div>`;
 }).join("");}
-function renderMonths(){const exams=allExams(),selected=exams.filter(e=>visible[e.kind]);const box=$("months");box.innerHTML="";
-  const first=exams[0]?parseDate(exams[0].date):today(),last=exams.at(-1)?parseDate(exams.at(-1).date):today();
-  let min=new Date(first.getFullYear(),first.getMonth(),1),max=new Date(last.getFullYear(),last.getMonth(),1);
-  if(!exams.length)max=new Date(min.getFullYear(),min.getMonth()+1,1);
+function calendarEventHtml(events){return `<div class="day-events">${events.map(e=>
+  `<button type="button" class="cal-ev" data-scroll-to="${esc(e.id)}" title="${esc(NAMES[e.kind])}: ${esc(e.fach)}" aria-label="${esc(NAMES[e.kind])}: ${esc(e.fach)} – Details anzeigen" style="--c:var(--${e.kind})">${esc(shortly(e))}</button>`
+).join("")}</div>`;}
+function calendarDayHtml(date,byDate,week=false){const key=dateKey(date),events=byDate.get(key)||[],isToday=dateDiff(key)===0;
+  const weekday=WEEKDAYS[date.getDay()].slice(0,2);
+  return `<div class="day${events.length?" has-exam":""}${date.getDay()===0||date.getDay()===6?" weekend":""}${isToday?" today":""}">
+    <span class="num"><span class="mobile-weekday">${weekday} </span>${date.getDate()}<span class="mobile-month">. ${MSHORT[date.getMonth()]}</span></span>
+    ${calendarEventHtml(events)}
+  </div>`;
+}
+function renderMonths(){
+  const exams=allExams(),selected=exams.filter(e=>visible[e.kind]),box=$("months");
+  if(!calendarAnchor)calendarAnchor=firstRelevantDate(exams);
   const byDate=new Map();for(const e of selected){if(!byDate.has(e.date))byDate.set(e.date,[]);byDate.get(e.date).push(e);}
-  let html="";let i=0;
-  for(let month=new Date(min);month<=max && i<36;month.setMonth(month.getMonth()+1),i++){
-    const y=month.getFullYear(),m=month.getMonth();const count=selected.filter(e=>{const d=parseDate(e.date);return d.getFullYear()===y&&d.getMonth()===m;}).length;
-    html+=`<div class="month"><h2>${MONTHS[m]} ${y}<span>${count?`${count} ${count===1?"Termin":"Termine"}`:"keine Termine"}</span></h2><div class="month-grid">`;
+  const first=exams[0]?parseDate(exams[0].date):today(),last=exams.at(-1)?parseDate(exams.at(-1).date):today();
+  const min=new Date(first.getFullYear(),first.getMonth(),1),max=new Date(last.getFullYear(),last.getMonth(),1);
+  const nav=$("calendarNav");nav.hidden=calendarView==="all";
+  document.querySelectorAll("[data-calendar-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.calendarView===calendarView)));
+  box.classList.toggle("single-view",calendarView==="month");box.classList.toggle("week-view",calendarView==="week");
+  const ranges=[];
+  if(calendarView==="all"){
+    for(let m=new Date(min),i=0;m<=max&&i<36;m.setMonth(m.getMonth()+1),i++)ranges.push({start:new Date(m),type:"month"});
+  }else if(calendarView==="month"){
+    ranges.push({start:new Date(calendarAnchor.getFullYear(),calendarAnchor.getMonth(),1),type:"month"});
+    $("calendarPeriod").textContent=`${MONTHS[calendarAnchor.getMonth()]} ${calendarAnchor.getFullYear()}`;
+    $("calendarPrev").setAttribute("aria-label","Vorheriger Monat");$("calendarNext").setAttribute("aria-label","Nächster Monat");
+  }else{
+    const start=beginWeek(calendarAnchor);ranges.push({start,type:"week"});
+    const end=addDays(start,6);$("calendarPeriod").textContent=`${start.getDate()}. ${MSHORT[start.getMonth()]} – ${end.getDate()}. ${MSHORT[end.getMonth()]} ${end.getFullYear()}`;
+    $("calendarPrev").setAttribute("aria-label","Vorherige Woche");$("calendarNext").setAttribute("aria-label","Nächste Woche");
+  }
+  let html="";
+  for(const range of ranges){
+    const start=range.start,isWeek=range.type==="week",days=isWeek?7:new Date(start.getFullYear(),start.getMonth()+1,0).getDate();
+    const rangeDates=Array.from({length:days},(_,i)=>isWeek?addDays(start,i):new Date(start.getFullYear(),start.getMonth(),i+1));
+    const count=rangeDates.reduce((sum,d)=>sum+(byDate.get(dateKey(d))||[]).length,0);
+    const heading=isWeek?"Wochenübersicht":`${MONTHS[start.getMonth()]} ${start.getFullYear()}`;
+    html+=`<div class="month"><h2>${heading}<span>${count?`${count} ${count===1?"Termin":"Termine"}`:"keine Termine"}</span></h2><div class="month-grid">`;
     for(const wd of ["Mo","Di","Mi","Do","Fr","Sa","So"])html+=`<span class="dow">${wd}</span>`;
-    const firstDay=new Date(y,m,1),offset=(firstDay.getDay()+6)%7,days=new Date(y,m+1,0).getDate();
-    for(let j=0;j<offset;j++)html+=`<span class="day empty"></span>`;
-    for(let day=1;day<=days;day++){
-      const d=new Date(y,m,day),key=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`,events=byDate.get(key)||[];
-      html+=`<div class="day${d.getDay()===0||d.getDay()===6?" weekend":""}${dateDiff(key)===0?" today":""}"><span class="num">${day}</span>`;
-      for(const e of events)html+=`<button type="button" class="cal-ev" data-scroll-to="${esc(e.id)}" title="${esc(NAMES[e.kind])}: ${esc(e.fach)} ${esc(e.von||"")}" style="--c:var(--${e.kind})">${esc(e.von?e.von+" ":"")}${esc(shortly(e))}</button>`;
-      html+="</div>";
-    }
-    html+="</div></div>";
+    if(!isWeek){const offset=(start.getDay()+6)%7;for(let j=0;j<offset;j++)html+='<span class="day empty"></span>';}
+    for(const d of rangeDates)html+=calendarDayHtml(d,byDate,isWeek);
+    html+='</div>';
+    if(!count)html+='<p class="no-month-exams">Keine Prüfungen in diesem Zeitraum.</p>';
+    html+='</div>';
   }
   box.innerHTML=html;
-  box.querySelectorAll("[data-scroll-to]").forEach(b=>b.addEventListener("click",()=>{const t=document.getElementById(`exam-${b.dataset.scrollTo}`);if(!t)return;t.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1500);}));
+  box.querySelectorAll("[data-scroll-to]").forEach(b=>b.addEventListener("click",()=>{
+    const t=document.getElementById(`exam-${b.dataset.scrollTo}`);if(!t)return;
+    t.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});
+    t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1500);
+  }));
 }
 function deadlineHTML(label,date){const n=dateDiff(date);if(n===null)return "";const cls=n>=0&&n<=3?" urgent":n<0?" over":"";return `<span class="deadline${cls}">${label} ${dateText(date)} · ${remainingText(n)}</span>`;}
 function renderList(){const box=$("items");const exams=allExams().filter(e=>visible[e.kind]);if(!exams.length){box.innerHTML=`<div class="empty-state">Keine Termine für die gewählten Filter vorhanden.</div>`;return;}
@@ -488,6 +570,17 @@ async function save(next,message){if(!cloud||!authUser)throw new Error("Bitte al
   state=next;renderAll();showToast(message);
 }
 function bindUI(){
+  document.querySelectorAll("[data-calendar-view]").forEach(b=>b.addEventListener("click",()=>{
+    calendarView=b.dataset.calendarView;
+    try{localStorage.setItem("stundenplan-kalenderansicht-v1",calendarView);}catch{}
+    renderMonths();
+  }));
+  for(const [id,delta] of [["calendarPrev",-1],["calendarNext",1]])$(id).addEventListener("click",()=>{
+    if(calendarView==="month")calendarAnchor=new Date(calendarAnchor.getFullYear(),calendarAnchor.getMonth()+delta,1);
+    else calendarAnchor=addDays(calendarAnchor,delta*7);
+    renderMonths();
+  });
+  $("calendarToday").addEventListener("click",()=>{calendarAnchor=today();renderMonths();});
   document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{visible[b.dataset.filter]=!visible[b.dataset.filter];renderAll();}));
   document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.close).close()));
   for(const id of ["settingsDialog","loginDialog","adminDialog"])$(id).addEventListener("click",event=>{if(event.target===$(id))$(id).close();});
