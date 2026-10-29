@@ -94,6 +94,10 @@ dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.l
 .settings-colors{display:grid;gap:10px;margin:14px 0}.color-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:15px;align-items:center}.color-row span{font-weight:700;font-size:.9rem}
 .panel-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .admin-list{display:grid;gap:8px}.admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);padding:12px;border-radius:6px;background:var(--bg)}
+.admin-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.admin-trash{display:inline-grid;place-items:center;width:39px;height:39px;padding:7px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--t1)}
+.admin-trash:hover,.admin-trash:focus-visible{background:color-mix(in srgb,var(--t1) 12%,var(--paper));border-color:var(--t1)}
+.admin-trash svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .admin-row strong{display:block}.admin-row small{font-size:.77rem;color:var(--muted)}.admin-row button{white-space:nowrap}
 .editor-slot{border:1px solid var(--line);border-radius:8px;margin-top:14px;overflow:hidden}
 .slot-top{display:flex;align-items:center;gap:10px;background:var(--bg);padding:12px 13px;font-weight:800}.slot-top input{width:17px;height:17px;accent-color:var(--t2);cursor:pointer}
@@ -110,13 +114,16 @@ dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.l
 .next-grid{gap:9px}.next{padding:13px;min-height:135px}.next .big{font-size:2rem}
 .item{grid-template-columns:62px minmax(0,1fr);gap:11px;padding:11px}.date-col .d{font-size:2rem}
 .side{grid-column:1/-1;text-align:left;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:1px}.countdown{margin:0}
-/* Auf kleinen Displays wird der Monat zu gut lesbaren Tageskarten statt Mini-Punkten. */
-.month-grid{display:flex;flex-direction:column;gap:7px}.dow,.day.empty,.day:not(.has-exam){display:none}
-.day.has-exam,.months.single-view .day.has-exam,.months.week-view .day.has-exam{display:grid;grid-template-columns:69px minmax(0,1fr);gap:9px;min-height:70px;padding:11px;border:1px solid var(--line);border-radius:7px;background:var(--bg);opacity:1;align-items:start}
-.day .num{font-size:.9rem;font-weight:800;line-height:1.25}.mobile-weekday,.mobile-month{display:inline}.day-events{margin:0;gap:6px}
-.cal-ev,.months.single-view .cal-ev{font-size:.93rem;line-height:1.3;padding:8px 9px;min-height:34px}
-.months.week-view .day{display:grid;grid-template-columns:69px minmax(0,1fr);min-height:60px;padding:10px 11px;border:1px solid var(--line);border-radius:7px;background:var(--bg);align-items:center}
-.months.week-view .day:not(.has-exam){display:grid;opacity:.7}.months.week-view .day:not(.has-exam) .day-events:after{content:"Keine Prüfung";color:var(--muted);font-size:.84rem}
+/* Mobile: vollständiges Monatsraster mit allen 28–31 Tagen statt einer Liste. */
+.month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.dow{display:block;font-size:.64rem;padding-bottom:4px}
+.day,.day.has-exam,.months.single-view .day.has-exam,.months.week-view .day.has-exam{display:block;min-width:0;min-height:70px;padding:4px 2px 5px;border:0;border-radius:4px;background:var(--bg);opacity:1}
+.day.empty{display:block;background:transparent}
+.day .num{font-size:.73rem;font-weight:750}.mobile-weekday,.mobile-month{display:none}
+.day-events{display:grid;gap:2px;margin-top:4px}
+.cal-ev,.months.single-view .cal-ev,.months.week-view .cal-ev{font-size:clamp(.53rem,1.8vw,.68rem);line-height:1.15;padding:3px 2px;min-height:0;overflow-wrap:anywhere;hyphens:auto;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;border-left-width:3px}
+.months.week-view .day:not(.has-exam){display:block;opacity:.7}
+.months.week-view .day:not(.has-exam) .day-events:after{content:"";display:none}
 .calendar-toolbar{align-items:stretch;gap:10px}.view-switch{width:100%}.view-switch button{flex:1;min-width:0;padding:10px 4px;font-size:.82rem}
 .calendar-nav{justify-content:space-between;width:100%}.calendar-nav strong{min-width:0;flex:1;font-size:.89rem}.calendar-nav button{padding:8px 10px}
 .dialog-inner{padding:17px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.tools{gap:5px}.pill-button{font-size:.78rem;padding:8px 9px}
@@ -571,9 +578,19 @@ function switchDialog(which){
 function toggleBusy(value){busy=value;for(const id of ["saveExamBtn","loginSubmit"])$(id).disabled=value;}
 function showAdminList(){ $("adminListView").hidden=false;$("editorView").hidden=true;$("calendarTitleView").hidden=true;const container=$("adminList");const sorted=[...state.subjects].sort((a,b)=>a.fach.localeCompare(b.fach,"de"));
   container.innerHTML=sorted.length?sorted.map(s=>{const summary=KINDS.map(k=>s.slots?.[k]?.date?`<span style="color:var(--${k});font-weight:750">${esc(NAMES[k])}: ${dateText(s.slots[k].date)}</span>`:null).filter(Boolean).join(" · ")||"Noch kein Termin";
-    return `<div class="admin-row"><div><strong>${esc(s.fach)}</strong><small>${summary}</small></div><button class="secondary" type="button" data-edit-id="${esc(s.id)}">Bearbeiten</button></div>`;
+    return `<div class="admin-row"><div><strong>${esc(s.fach)}</strong><small>${summary}</small></div><div class="admin-actions"><button class="secondary" type="button" data-edit-id="${esc(s.id)}">Bearbeiten</button><button type="button" class="admin-trash" data-delete-id="${esc(s.id)}" aria-label="Fach ${esc(s.fach)} löschen" title="Fach löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg></button></div></div>`;
   }).join(""):`<div class="empty-state">Noch keine Fächer vorhanden.</div>`;
   container.querySelectorAll("[data-edit-id]").forEach(b=>b.addEventListener("click",()=>openEditor(b.dataset.editId)));
+  container.querySelectorAll("[data-delete-id]").forEach(b=>b.addEventListener("click",async()=>{
+    if(busy)return;
+    const subject=state.subjects.find(s=>s.id===b.dataset.deleteId);
+    if(!subject || !confirm(`Fach „${subject.fach}“ einschließlich aller Prüfungstermine wirklich löschen?`))return;
+    const next=copy(state);next.subjects=next.subjects.filter(s=>s.id!==subject.id);
+    toggleBusy(true);
+    try{await save(next,"Fach und Prüfungstermine gelöscht.");showAdminList();}
+    catch(e){showToast(`Löschen fehlgeschlagen: ${e.message}`);}
+    finally{toggleBusy(false);}
+  }));
 }
 function slotHTML(kind,slot){const enabled=!!slot?.date;const prefix=`slot-${kind}`;const field=(key,label,type="text",placeholder="")=>`<div class="field"><label for="${prefix}-${key}">${label}</label><input id="${prefix}-${key}" type="${type}" ${type==="date"?"":type==="url"?'inputmode="url"':''} value="${esc(slot?.[key]||"")}" ${placeholder?`placeholder="${esc(placeholder)}"`:""}></div>`;
  return `<section class="editor-slot" data-kind="${kind}">
