@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /calendars/main {
+      // Alle Mitstudenten können den Kalender ohne Login lesen.
+      allow read: if true;
+      // Nur der festgelegte Firebase-Admin darf Termine verändern.
+      // UID aus Firebase Authentication anstelle von ADMIN_UID_HIER einsetzen.
+      allow create, update, delete: if request.auth != null
+        && request.auth.uid == 'ADMIN_UID_HIER';
+    }
+  }
+}
