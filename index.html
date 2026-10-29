@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#E9EDF2"><meta name="description" content="Gemeinsame Prüfungstermine, Anmeldefristen und Prüfungskalender">
+  <title>Stundenplan Übersicht – Prüfungskalender</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+  <style>:root{
+  color-scheme:light; --bg:#E9EDF2;--paper:#F7F9FB;--ink:#18202C;--muted:#5D6878;
+  --line:#CBD3DD;--t1:#D9464D;--t2:#386DD5;--wh:#2D9962;
+  --today:#18202C;--shadow:0 16px 42px rgba(16,27,46,.11);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#10151C;--paper:#18202A;--ink:#E6EBF1;--muted:#A0ADBC;
+  --line:#324051;--today:#E6EBF1;--shadow:0 18px 48px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.48 'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--t2)}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:auto;padding:28px 22px 70px}
+.top{display:flex;gap:18px;align-items:flex-start;justify-content:space-between}
+.brand h1{font-size:clamp(2.2rem,5.2vw,3.55rem);font-weight:800;font-stretch:75%;letter-spacing:-.03em;line-height:.96;margin:4px 0 12px}
+.sub{font-size:.94rem;color:var(--muted);margin:0 0 22px}
+.tools{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.icon-button,.pill-button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:9px 13px;font-weight:650;transition:background .15s,border-color .15s}
+.icon-button{width:40px;height:40px;display:grid;place-items:center;padding:0;font-size:1.15rem}
+.icon-button:hover,.pill-button:hover{border-color:var(--muted)}
+.next-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:4px 0 24px}
+.next{--c:var(--t1);background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--c);padding:17px 19px;min-height:128px}
+.next small{display:block;color:var(--muted);font-size:.85rem}
+.next .big{font-weight:800;font-stretch:65%;font-size:clamp(2.15rem,4.3vw,3.7rem);line-height:1.02;margin:6px 0 3px}
+.next .what{font-weight:750;font-size:1rem;line-height:1.23;margin-bottom:4px}
+.legend{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+.chip{display:inline-flex;gap:9px;align-items:center;color:var(--ink);border:1.5px solid var(--c);border-radius:99px;background:var(--paper);padding:7px 14px 7px 10px;font-weight:650;font-size:.9rem}
+.chip .dot{width:12px;height:12px;background:var(--c);border-radius:50%}.chip[aria-pressed="false"]{opacity:.43;border-style:dashed}
+.mini-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:37px}
+.month{background:var(--paper);border:1px solid var(--line);padding:15px 16px 18px;min-width:0}
+.month h2{font-weight:750;font-stretch:85%;font-size:1.25rem;display:flex;gap:8px;justify-content:space-between;align-items:baseline;margin:0 0 14px}
+.month h2 span{font-size:.8rem;color:var(--muted);font-stretch:100%;font-weight:500;white-space:nowrap}
+.month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.dow{font-size:.73rem;color:var(--muted);text-align:center;padding-bottom:3px}
+.day{min-width:0;min-height:65px;padding:3px 4px;border:0;border-radius:4px;background:var(--bg);text-align:left;color:var(--muted)}
+.day.empty{background:transparent}.day.weekend{opacity:.78}.day.today .num{background:var(--today);color:var(--paper);padding:0 4px;border-radius:3px}.day .num{font-weight:650;font-size:.82rem}
+.cal-ev{display:block;width:100%;border:0;border-left:3px solid var(--c);border-radius:2px;background:color-mix(in srgb,var(--c) 15%,var(--paper));color:var(--ink);text-align:left;padding:2px 4px;margin-top:3px;font-size:.69rem;font-weight:700;line-height:1.27;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:17px}
+.cal-ev:hover{background:color-mix(in srgb,var(--c) 28%,var(--paper))}.cal-ev:focus-visible{outline:2px solid var(--c)}
+.list-head{display:flex;gap:16px;align-items:end;justify-content:space-between;flex-wrap:wrap;margin:0 0 12px}
+.list-head h2{font-stretch:75%;font-weight:800;font-size:1.9rem;margin:0}.list-head p{font-size:.85rem;color:var(--muted);margin:0 0 4px}
+.items{display:grid;gap:10px}.item{--c:var(--t1);display:grid;grid-template-columns:82px minmax(0,1fr) auto;gap:18px;background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--c);padding:15px 16px;transition:box-shadow .15s;scroll-margin-top:18px}
+.item.flash{box-shadow:0 0 0 3px var(--c)}.item.past{opacity:.65}
+.date-col{text-align:center;line-height:1.06}.date-col .d{font-weight:800;font-stretch:65%;font-size:2.55rem}.date-col .m{font-size:.78rem;font-weight:700;color:var(--muted);margin:2px 0}.date-col .wd{font-size:.75rem;color:var(--muted)}
+.info h3{font-size:1.07rem;margin:1px 0 5px;line-height:1.35}.tag{display:inline-block;margin:0 8px 3px 0;border-radius:30px;padding:2px 8px;font-size:.71rem;font-weight:750;background:color-mix(in srgb,var(--c) 15%,var(--paper));color:var(--c);vertical-align:1px}
+.meta,.note{margin:4px 0;color:var(--muted);font-size:.88rem}.meta b{color:var(--ink);font-weight:700}.note{color:var(--ink)}
+.deadlines{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:9px}.deadline{font-size:.82rem;color:var(--muted)}.deadline.urgent{font-weight:700;color:var(--t1)}.deadline.over{opacity:.8}
+.fh-link{font-weight:700;font-size:.86rem;display:inline-flex;gap:5px;align-items:center;margin-top:8px;text-underline-offset:2px}
+.side{text-align:right;min-width:132px}.countdown{font-size:.94rem;font-weight:800;margin:2px 0 12px}
+.check{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:50px;padding:5px 10px;background:transparent;color:var(--muted);font-size:.8rem;white-space:nowrap}
+.check[aria-pressed="true"]{color:var(--ink);border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--paper))}
+.check .checkbox-icon{display:grid;place-items:center;border:1px solid currentColor;width:15px;height:15px;border-radius:3px;font-size:.7rem;line-height:1}
+.empty-state{border:1px dashed var(--line);padding:30px;text-align:center;color:var(--muted);background:var(--paper)}
+.status{font-size:.8rem;color:var(--muted);margin:-9px 0 20px}.status.error{color:var(--t1)}
+dialog{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:0;width:min(95vw,480px);max-height:min(94dvh,900px);overflow:auto}
+dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.large{width:min(96vw,890px)}
+.dialog-inner{padding:25px}.dialog-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.dialog-head h2{font-size:1.5rem;line-height:1.2;margin:0 0 5px;font-weight:800}.dialog-head p{margin:0;color:var(--muted);font-size:.87rem}
+.close{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:50%;width:34px;height:34px;font-size:1.3rem;line-height:1}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-weight:700;font-size:.81rem;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:9px 10px;width:100%;min-width:0;outline:none}
+.field textarea{resize:vertical;min-height:64px}.field input:focus,.field textarea:focus{border-color:var(--t2);box-shadow:0 0 0 2px color-mix(in srgb,var(--t2) 18%,transparent)}
+.field input[type=color]{height:42px;cursor:pointer;padding:3px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.form-grid .wide{grid-column:1/-1}.section-title{font-size:.86rem;font-weight:800;letter-spacing:.03em;margin:22px 0 11px}
+.primary,.secondary,.danger{border:1px solid transparent;border-radius:7px;padding:10px 15px;font-weight:750}
+.primary{background:var(--ink);color:var(--paper)}.primary:hover{opacity:.86}.secondary{background:var(--bg);border-color:var(--line);color:var(--ink)}.danger{background:transparent;color:var(--t1);border-color:color-mix(in srgb,var(--t1) 40%,var(--line))}
+.primary:disabled,.secondary:disabled{opacity:.45;cursor:wait}
+.form-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:20px}.form-actions .push{margin-left:auto}.muted{font-size:.85rem;color:var(--muted)}
+.settings-colors{display:grid;gap:10px;margin:14px 0}.color-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:15px;align-items:center}.color-row span{font-weight:700;font-size:.9rem}
+.panel-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.admin-list{display:grid;gap:8px}.admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);padding:12px;border-radius:6px;background:var(--bg)}
+.admin-row strong{display:block}.admin-row small{font-size:.77rem;color:var(--muted)}.admin-row button{white-space:nowrap}
+.editor-slot{border:1px solid var(--line);border-radius:8px;margin-top:14px;overflow:hidden}
+.slot-top{display:flex;align-items:center;gap:10px;background:var(--bg);padding:12px 13px;font-weight:800}.slot-top input{width:17px;height:17px;accent-color:var(--t2);cursor:pointer}
+.slot-fields{padding:14px}.slot-fields[hidden]{display:none}.slot-disabled{opacity:.75}
+.notice{border-left:4px solid var(--t2);background:var(--bg);padding:10px 13px;margin:13px 0;font-size:.85rem;color:var(--muted)}
+#toast{position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 17px;border-radius:7px;box-shadow:var(--shadow);display:none;max-width:calc(100vw - 35px);text-align:center;font-size:.87rem}#toast.show{display:block}
+[hidden]{display:none!important}:focus-visible{outline:3px solid var(--t2);outline-offset:3px}
+@media(max-width:700px){.wrap{padding:22px 14px 55px}.months{grid-template-columns:1fr}.month{padding:12px}.next-grid{gap:9px}.next{padding:13px;min-height:135px}.next .big{font-size:2rem}.item{grid-template-columns:62px minmax(0,1fr);gap:11px;padding:11px}.date-col .d{font-size:2rem}.side{grid-column:1/-1;text-align:left;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:1px}.countdown{margin:0}.day{min-height:51px;padding:3px}.cal-ev{font-size:0;height:7px;min-height:7px;padding:0;border:0;background:var(--c)}.dialog-inner{padding:17px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.tools{gap:5px}.pill-button{font-size:.78rem;padding:8px 9px}}
+@media(max-width:400px){.next-grid{grid-template-columns:1fr}.next{min-height:110px}.brand h1{font-size:2.3rem}.day{min-height:45px}.sub{font-size:.82rem}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div class="brand"><h1 id="pageTitle">Prüfungen<br>WS 2026/27</h1><p class="sub" id="subtitle">Alle aktuellen Prüfungstermine</p></div>
+      <div class="tools"><button id="settingsBtn" class="icon-button" type="button" title="Farben und Ansicht einstellen" aria-label="Einstellungen">⚙</button><button id="adminBtn" type="button" class="pill-button">Admin</button></div>
+    </div>
+    <div class="next-grid" id="nextGrid" aria-label="Nächste Erst- und Zweittermine"></div>
+    <div class="legend" aria-label="Terminarten ein- und ausblenden">
+      <button class="chip" data-filter="t1" type="button" aria-pressed="true" style="--c:var(--t1)"><span class="dot"></span>1. Termin</button>
+      <button class="chip" data-filter="t2" type="button" aria-pressed="true" style="--c:var(--t2)"><span class="dot"></span>2. Termin</button>
+      <button class="chip" data-filter="wh" type="button" aria-pressed="true" style="--c:var(--wh)"><span class="dot"></span>WH-Termin</button>
+    </div>
+    <div class="status" id="connectionStatus" role="status" hidden></div>
+    <section class="months" id="months" aria-label="Monatsübersicht"></section>
+    <section aria-label="Alle Prüfungstermine">
+      <div class="list-head"><h2>Alle Termine</h2><p>Du kannst deine Anmeldung hier persönlich markieren. Sie wird nur in deinem Browser gespeichert.</p></div>
+      <div id="items" class="items"></div>
+    </section>
+  </main>
+
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle"><div class="dialog-inner">
+    <div class="dialog-head"><div><h2 id="settingsTitle">Einstellungen</h2><p>Diese Einstellungen gelten nur für deinen Browser.</p></div><button type="button" class="close" data-close="settingsDialog" aria-label="Schließen">×</button></div>
+    <div class="field"><label for="themeChoice">Darstellung</label><select id="themeChoice"><option value="auto">Automatisch (System)</option><option value="light">Hell</option><option value="dark">Dunkel</option></select></div>
+    <div class="section-title">Farben der Terminarten</div>
+    <div class="settings-colors">
+      <div class="color-row"><span>1. Termin</span><div class="field"><label for="t1Color">Farbe</label><input id="t1Color" type="color"></div></div>
+      <div class="color-row"><span>2. Termin</span><div class="field"><label for="t2Color">Farbe</label><input id="t2Color" type="color"></div></div>
+      <div class="color-row"><span>WH-Termin</span><div class="field"><label for="whColor">Farbe</label><input id="whColor" type="color"></div></div>
+    </div>
+    <div class="form-actions"><button type="button" class="secondary" id="resetSettings">Standardfarben</button><button type="button" class="primary push" id="saveSettings">Speichern</button></div>
+  </div></dialog>
+
+  <dialog id="loginDialog" aria-labelledby="loginTitle"><div class="dialog-inner">
+    <div class="dialog-head"><div><h2 id="loginTitle">Admin-Anmeldung</h2><p>Nur die Verwaltung kann Termine verändern.</p></div><button type="button" class="close" data-close="loginDialog" aria-label="Schließen">×</button></div>
+    <div id="loginNotice" class="notice" hidden></div>
+    <form id="loginForm" class="form-grid">
+      <div class="field wide"><label for="loginUser">Benutzername</label><input id="loginUser" name="username" autocomplete="username" value="called_michi15" required></div>
+      <div class="field wide"><label for="loginPassword">Passwort</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required></div>
+      <div class="form-actions wide"><button class="primary" id="loginSubmit" type="submit">Anmelden</button></div>
+    </form>
+  </div></dialog>
+
+  <dialog id="adminDialog" class="large" aria-labelledby="adminTitle"><div class="dialog-inner">
+    <div class="dialog-head"><div><h2 id="adminTitle">Prüfungen verwalten</h2><p>Alle gespeicherten Änderungen werden für deine Mitstudenten veröffentlicht.</p></div><button type="button" class="close" data-close="adminDialog" aria-label="Schließen">×</button></div>
+    <div id="adminListView">
+      <div class="panel-top"><strong>Fächer und Prüfungstermine</strong><button id="newSubjectBtn" type="button" class="primary">+ Neues Fach</button></div>
+      <div class="admin-list" id="adminList"></div>
+      <div class="form-actions"><button class="secondary" id="editCalendarTitle" type="button">Kalendertitel ändern</button><button class="secondary push" id="logoutBtn" type="button">Abmelden</button></div>
+    </div>
+    <div id="calendarTitleView" hidden>
+      <button id="backFromTitle" class="secondary" type="button">← Zurück</button>
+      <form id="calendarTitleForm" style="margin-top:14px" class="form-grid">
+        <div class="field wide"><label for="calendarTitleInput">Titel (z. B. Prüfungen WS 2026/27)</label><input id="calendarTitleInput" maxlength="100" required></div>
+        <div class="form-actions wide"><button class="primary" type="submit">Titel speichern</button></div>
+      </form>
+    </div>
+    <div id="editorView" hidden>
+      <div class="panel-top"><button id="backToListBtn" type="button" class="secondary">← Alle Fächer</button><strong id="editHeading">Neues Fach</strong></div>
+      <form id="examForm">
+        <div class="form-grid">
+          <div class="field wide"><label for="subjectName">Fachbezeichnung *</label><input id="subjectName" required maxlength="180" placeholder="z. B. Ingenieurmathematik 2"></div>
+          <div class="field"><label for="subjectShort">Kurzbezeichnung (optional)</label><input id="subjectShort" maxlength="80" placeholder="z. B. Mathe 2"></div>
+          <div class="field"><label for="subjectSem">Semester / Zusatz (optional)</label><input id="subjectSem" maxlength="60" placeholder="z. B. 2026 W"></div>
+        </div>
+        <div class="notice">Aktiviere nur die Termine, die du tatsächlich eintragen möchtest. Du kannst alle drei in einem Vorgang anlegen oder später einzeln ergänzen. Bei einem bestehenden Fach entfernt ein deaktiviertes Häkchen den jeweiligen Termin.</div>
+        <div id="slotsEditor"></div>
+        <div class="form-actions"><button id="deleteSubjectBtn" type="button" class="danger" hidden>Fach löschen</button><button id="saveExamBtn" type="submit" class="primary push">Änderungen speichern</button></div>
+      </form>
+    </div>
+  </div></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module">/*
+ * STUNDENPLAN ÜBERSICHT – KONFIGURATION
+ * Firebase Web-App-Konfiguration aus der Firebase-Konsole eintragen.
+ * KEIN PASSWORT im HTML speichern. Passwort direkt beim Firebase-Admin-Benutzer festlegen.
+ */
+const CONFIG = {
+  adminUsername: "called_michi15",
+  adminEmail: "", // E-Mail des in Firebase Authentication angelegten Admin-Kontos
+  adminUid: "",   // UID des Admin-Kontos; muss mit der Firestore-Regel übereinstimmen
+  firebase: {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    appId: ""
+  }
+};
+
+const INITIAL_SUBJECTS = [
+  {
+    "id": "fach-01",
+    "fach": "Ingenieurmathematik 2",
+    "kurz": "",
+    "sem": "2026 S",
+    "slots": {
+      "wh": {
+        "id": "im2",
+        "date": "2026-11-09",
+        "von": "08:15",
+        "bis": "10:15",
+        "pruefer": "Johannes Hatzl",
+        "raum": "Hörsaal (EA11.EG.013)",
+        "anm": "2026-11-05",
+        "abm": "2026-11-07",
+        "link": "",
+        "note": "WH-Prüfung mit MEC25 – Aufsicht"
+      }
+    }
+  },
+  {
+    "id": "fach-02",
+    "fach": "Betriebspraxis 1",
+    "kurz": "",
+    "sem": "2026 W",
+    "slots": {
+      "t1": {
+        "id": "bp1",
+        "date": "2026-11-16",
+        "von": "17:00",
+        "bis": "17:15",
+        "pruefer": "Maja Dragan",
+        "raum": "Projektraum (EA11.01.120)",
+        "anm": "2026-11-12",
+        "abm": "2026-11-14",
+        "link": "",
+        "note": "Abgabe der BP-Dokumentation"
+      }
+    }
+  },
+  {
+    "id": "fach-03",
+    "fach": "Strukturmechanik",
+    "kurz": "",
+    "sem": "2026 S",
+    "slots": {
+      "wh": {
+        "id": "sm",
+        "date": "2026-11-23",
+        "von": "08:30",
+        "bis": "10:00",
+        "pruefer": "Niko Heinemann",
+        "raum": "Seminarraum (EA11.01.122)",
+        "anm": "2026-11-19",
+        "abm": "2026-11-21",
+        "link": "",
+        "note": "WH-Termin"
+      }
+    }
+  },
+  {
+    "id": "fach-04",
+    "fach": "Werkstoffkunde 2",
+    "kurz": "",
+    "sem": "2026 S",
+    "slots": {
+      "wh": {
+        "id": "wk2",
+        "date": "2026-11-30",
+        "von": "10:30",
+        "bis": "12:00",
+        "pruefer": "David Schneider",
+        "raum": "Seminarraum (EA11.04.454)",
+        "anm": "2026-11-26",
+        "abm": "2026-11-28",
+        "link": "",
+        "note": "WH-Termin"
+      }
+    }
+  },
+  {
+    "id": "fach-05",
+    "fach": "Wissenschaftliches Arbeiten",
+    "kurz": "",
+    "sem": "2026 W",
+    "slots": {
+      "t1": {
+        "id": "wa1",
+        "date": "2027-02-01",
+        "von": "10:30",
+        "bis": "12:00",
+        "pruefer": "Maja Dragan",
+        "raum": "Hörsaal (EA11.EG.012)",
+        "anm": "2027-01-28",
+        "abm": "2027-01-30",
+        "link": "",
+        "note": ""
+      },
+      "t2": {
+        "id": "wa2",
+        "date": "2027-02-10",
+        "von": "13:30",
+        "bis": "15:00",
+        "pruefer": "Maja Dragan",
+        "raum": "Hörsaal (EA11.EG.012)",
+        "anm": "2027-02-06",
+        "abm": "2027-02-08",
+        "link": "",
+        "note": ""
+      }
+    }
+  },
+  {
+    "id": "fach-06",
+    "fach": "Dimensionelle Messtechnik",
+    "kurz": "",
+    "sem": "2026 W",
+    "slots": {
+      "t1": {
+        "id": "dm1",
+        "date": "2027-02-11",
+        "von": "08:30",
+        "bis": "10:00",
+        "pruefer": "Michael Eichmann",
+        "raum": "Hörsaal (EA11.EG.012)",
+        "anm": "2027-02-07",
+        "abm": "2027-02-09",
+        "link": "",
+        "note": ""
+      },
+      "t2": {
+        "id": "dm2",
+        "date": "2027-02-16",
+        "von": "16:45",
+        "bis": "18:15",
+        "pruefer": "Michael Eichmann",
+        "raum": "Hörsaal (EA11.EG.012)",
+        "anm": "2027-02-12",
+        "abm": "2027-02-14",
+        "link": "",
+        "note": ""
+      }
+    }
+  },
+  {
+    "id": "fach-07",
+    "fach": "Steuerung, Planung, Umsetzung und Verbesserung von Produktionsprozessen",
+    "kurz": "Produktionsprozesse",
+    "sem": "2026 W",
+    "slots": {
+      "t1": {
+        "id": "sp1",
+        "date": "2027-02-15",
+        "von": "16:00",
+        "bis": "17:30",
+        "pruefer": "Isabel Kastl",
+        "raum": "EDV Labor (EA11.01.108)",
+        "anm": "2027-02-11",
+        "abm": "2027-02-13",
+        "link": "",
+        "note": "Prüfung online TÜV"
+      },
+      "t2": {
+        "id": "sp2",
+        "date": "2027-02-19",
+        "von": "08:00",
+        "bis": "09:30",
+        "pruefer": "Isabel Kastl",
+        "raum": "EDV Labor (EA11.01.108)",
+        "anm": "2027-02-15",
+        "abm": "2027-02-17",
+        "link": "",
+        "note": "Prüfung online TÜV"
+      }
+    }
+  }
+];
+const DEFAULT_TITLE = "Prüfungen WS 2026/27";
+const DEFAULT_COLORS = {t1:"#D9464D", t2:"#386DD5", wh:"#2D9962"};
+const NAMES = {t1:"1. Termin", t2:"2. Termin", wh:"WH-Termin"};
+const MONTHS = ["Jänner","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const MSHORT = ["Jän","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+const WEEKDAYS = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+const KINDS = ["t1","t2","wh"];
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[char]);
+const newId = () => (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+const copy = obj => JSON.parse(JSON.stringify(obj));
+const htmlDate = value => /^\d{4}-\d\d-\d\d$/.test(value || "") ? value : "";
+const parseDate = value => { if (!htmlDate(value)) return null; const [y,m,d] = value.split("-").map(Number); const date = new Date(y,m-1,d); return (date.getFullYear() === y && date.getMonth() === m-1 && date.getDate() === d) ? date : null; };
+const today = () => { const n = new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate()); };
+const dateDiff = value => {const d=parseDate(value); if(!d)return null;const t=today();return Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()) - Date.UTC(t.getFullYear(),t.getMonth(),t.getDate())) / 86400000);};
+const dateText = value => {const d=parseDate(value);return d?`${d.getDate()}. ${MONTHS[d.getMonth()]} ${d.getFullYear()}`:"–";};
+const dueText = n => n===0?"heute":n===1?"morgen":n===-1?"gestern":n>1?`in ${n} Tagen`:`vor ${-n} Tagen`;
+const remainingText = n => n===0?"Heute letzter Tag":n===1?"Noch 1 Tag":n>1?`Noch ${n} Tage`:n===-1?"seit gestern abgelaufen":`seit ${-n} Tagen abgelaufen`;
+const validLink = url => {try{let u=new URL(url);return ["https:","http:"].includes(u.protocol)?u.href:"";}catch{return "";}};
+const firebaseEnabled = () => Boolean(CONFIG.adminEmail && CONFIG.adminUid && CONFIG.firebase.apiKey && CONFIG.firebase.authDomain && CONFIG.firebase.projectId && CONFIG.firebase.appId);
+let state = {title:DEFAULT_TITLE,subjects:copy(INITIAL_SUBJECTS)};
+let cloud = null, authUser = null;
+let editingSubjectId = null;
+let busy = false;
+let prefs = {theme:"auto",colors:{...DEFAULT_COLORS}};
+let visible = {t1:true,t2:true,wh:true};
+let registered = {};
+try { const saved=JSON.parse(localStorage.getItem("stundenplan-registriert-v1")||"{}"); if(saved&&typeof saved==="object") registered=saved; } catch{}
+try { const saved=JSON.parse(localStorage.getItem("stundenplan-settings-v1")||"{}"); if(["auto","light","dark"].includes(saved.theme)) prefs.theme=saved.theme; if(saved.colors) for(const k of KINDS) if(/^#[0-9a-f]{6}$/i.test(saved.colors[k])) prefs.colors[k]=saved.colors[k]; } catch{}
+
+function showToast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(showToast.timeout);showToast.timeout=setTimeout(()=>el.classList.remove("show"),3800);}
+function showStatus(message,isError=false){const el=$("connectionStatus");el.hidden=!message;el.textContent=message||"";el.classList.toggle("error",isError);}
+function setPrefs(){const dark=prefs.theme==="dark" || (prefs.theme==="auto" && matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=dark?"dark":"light";for(const k of KINDS)document.documentElement.style.setProperty(`--${k}`,prefs.colors[k]);}
+function allExams(){const items=[];for(const s of (state.subjects||[])){for(const kind of KINDS){const slot=s.slots?.[kind];if(!slot?.date || !parseDate(slot.date))continue;items.push({...slot,kind,fach:s.fach,kurz:s.kurz||"",sem:s.sem||"",id:slot.id || `${s.id}-${kind}`});}}
+  return items.sort((a,b)=>(a.date+a.von).localeCompare(b.date+b.von) || KINDS.indexOf(a.kind)-KINDS.indexOf(b.kind));}
+const shortly = e => e.kurz || e.fach;
+const dateFuture = e => {const d=parseDate(e.date);if(!d)return false;const [h,m]=(e.von||"23:59").split(":").map(Number);d.setHours(h||0,m||0,0,0);return d.getTime()>=Date.now();};
+function renderNext(){const exams=allExams();const el=$("nextGrid");el.innerHTML=["t1","t2"].map(k=>{
+  const match=exams.find(e=>e.kind===k && dateFuture(e));
+  if(!match)return `<div class="next" style="--c:var(--${k})"><small>Nächster ${esc(NAMES[k])}</small><div class="big">–</div><div class="what">Kein weiterer Termin</div><small>Derzeit nichts eingetragen</small></div>`;
+  const d=parseDate(match.date),n=dateDiff(match.date);let big=n===0?"Heute":n===1?"Morgen":`${n} Tage`;
+  return `<div class="next" style="--c:var(--${k})"><small>Nächster ${esc(NAMES[k])}</small><div class="big">${big}</div><div class="what">${esc(shortly(match))}</div><small>${WEEKDAYS[d.getDay()]}, ${dateText(match.date)}${match.von?`, ${esc(match.von)} Uhr`:""}</small></div>`;
+}).join("");}
+function renderMonths(){const exams=allExams(),selected=exams.filter(e=>visible[e.kind]);const box=$("months");box.innerHTML="";
+  const first=exams[0]?parseDate(exams[0].date):today(),last=exams.at(-1)?parseDate(exams.at(-1).date):today();
+  let min=new Date(first.getFullYear(),first.getMonth(),1),max=new Date(last.getFullYear(),last.getMonth(),1);
+  if(!exams.length)max=new Date(min.getFullYear(),min.getMonth()+1,1);
+  const byDate=new Map();for(const e of selected){if(!byDate.has(e.date))byDate.set(e.date,[]);byDate.get(e.date).push(e);}
+  let html="";let i=0;
+  for(let month=new Date(min);month<=max && i<36;month.setMonth(month.getMonth()+1),i++){
+    const y=month.getFullYear(),m=month.getMonth();const count=selected.filter(e=>{const d=parseDate(e.date);return d.getFullYear()===y&&d.getMonth()===m;}).length;
+    html+=`<div class="month"><h2>${MONTHS[m]} ${y}<span>${count?`${count} ${count===1?"Termin":"Termine"}`:"keine Termine"}</span></h2><div class="month-grid">`;
+    for(const wd of ["Mo","Di","Mi","Do","Fr","Sa","So"])html+=`<span class="dow">${wd}</span>`;
+    const firstDay=new Date(y,m,1),offset=(firstDay.getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+    for(let j=0;j<offset;j++)html+=`<span class="day empty"></span>`;
+    for(let day=1;day<=days;day++){
+      const d=new Date(y,m,day),key=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`,events=byDate.get(key)||[];
+      html+=`<div class="day${d.getDay()===0||d.getDay()===6?" weekend":""}${dateDiff(key)===0?" today":""}"><span class="num">${day}</span>`;
+      for(const e of events)html+=`<button type="button" class="cal-ev" data-scroll-to="${esc(e.id)}" title="${esc(NAMES[e.kind])}: ${esc(e.fach)} ${esc(e.von||"")}" style="--c:var(--${e.kind})">${esc(e.von?e.von+" ":"")}${esc(shortly(e))}</button>`;
+      html+="</div>";
+    }
+    html+="</div></div>";
+  }
+  box.innerHTML=html;
+  box.querySelectorAll("[data-scroll-to]").forEach(b=>b.addEventListener("click",()=>{const t=document.getElementById(`exam-${b.dataset.scrollTo}`);if(!t)return;t.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1500);}));
+}
+function deadlineHTML(label,date){const n=dateDiff(date);if(n===null)return "";const cls=n>=0&&n<=3?" urgent":n<0?" over":"";return `<span class="deadline${cls}">${label} ${dateText(date)} · ${remainingText(n)}</span>`;}
+function renderList(){const box=$("items");const exams=allExams().filter(e=>visible[e.kind]);if(!exams.length){box.innerHTML=`<div class="empty-state">Keine Termine für die gewählten Filter vorhanden.</div>`;return;}
+  box.innerHTML=exams.map(e=>{const d=parseDate(e.date),n=dateDiff(e.date),marked=!!registered[e.id],link=validLink(e.link);
+  const time=e.von?`${esc(e.von)}${e.bis?`–${esc(e.bis)}`:""} Uhr`:"Uhrzeit noch offen";
+  return `<article class="item${n<0?" past":""}" id="exam-${esc(e.id)}" style="--c:var(--${e.kind})">
+    <div class="date-col"><div class="d">${d.getDate()}</div><div class="m">${MSHORT[d.getMonth()]} ${d.getFullYear()}</div><div class="wd">${WEEKDAYS[d.getDay()].slice(0,2)}</div></div>
+    <div class="info"><h3><span class="tag">${NAMES[e.kind]}</span>${esc(e.fach)}</h3>
+      <p class="meta"><b>${time}</b>${e.raum?`, ${esc(e.raum)}`:""}${e.pruefer?`<br>Prüfer*in: ${esc(e.pruefer)}`:""}${e.sem?`<br>Semester: ${esc(e.sem)}`:""}</p>
+      ${e.note?`<p class="note">${esc(e.note)}</p>`:""}
+      ${(e.anm||e.abm)?`<div class="deadlines">${e.anm?deadlineHTML("Anmeldung bis",e.anm):""}${e.abm?deadlineHTML("Abmeldung bis",e.abm):""}</div>`:""}
+      ${link?`<a class="fh-link" target="_blank" rel="noopener noreferrer" href="${esc(link)}">FH-Prüfungsseite ↗</a>`:""}
+    </div>
+    <div class="side"><div class="countdown">${n===0?"Heute":n===1?"Morgen":dueText(n)}</div><button type="button" class="check" data-register="${esc(e.id)}" aria-pressed="${marked}"><span class="checkbox-icon">${marked?"✓":""}</span>${marked?"Angemeldet":"Nicht angemeldet"}</button></div>
+  </article>`;}).join("");
+  box.querySelectorAll("[data-register]").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.register;registered[id]=!registered[id];try{localStorage.setItem("stundenplan-registriert-v1",JSON.stringify(registered));}catch{}renderList();}));
+}
+function renderAll(){const exams=allExams();$("pageTitle").textContent=state.title||DEFAULT_TITLE;document.title=`${state.title||DEFAULT_TITLE} – Stundenplan Übersicht`;
+  if(exams.length)$("subtitle").textContent=`Alle Termine vom ${dateText(exams[0].date)} bis ${dateText(exams.at(-1).date)}`;
+  else $("subtitle").textContent="Noch keine Prüfungstermine eingetragen";
+  document.querySelectorAll("[data-filter]").forEach(b=>b.setAttribute("aria-pressed",String(visible[b.dataset.filter])));
+  renderNext();renderMonths();renderList();
+}
+function switchDialog(which){for(const id of ["settingsDialog","loginDialog","adminDialog"])if($(id).open)$(id).close();if(which)$(which).showModal();}
+function toggleBusy(value){busy=value;for(const id of ["saveExamBtn","loginSubmit"])$(id).disabled=value;}
+function showAdminList(){ $("adminListView").hidden=false;$("editorView").hidden=true;$("calendarTitleView").hidden=true;const container=$("adminList");const sorted=[...state.subjects].sort((a,b)=>a.fach.localeCompare(b.fach,"de"));
+  container.innerHTML=sorted.length?sorted.map(s=>{const summary=KINDS.map(k=>s.slots?.[k]?.date?`<span style="color:var(--${k});font-weight:750">${esc(NAMES[k])}: ${dateText(s.slots[k].date)}</span>`:null).filter(Boolean).join(" · ")||"Noch kein Termin";
+    return `<div class="admin-row"><div><strong>${esc(s.fach)}</strong><small>${summary}</small></div><button class="secondary" type="button" data-edit-id="${esc(s.id)}">Bearbeiten</button></div>`;
+  }).join(""):`<div class="empty-state">Noch keine Fächer vorhanden.</div>`;
+  container.querySelectorAll("[data-edit-id]").forEach(b=>b.addEventListener("click",()=>openEditor(b.dataset.editId)));
+}
+function slotHTML(kind,slot){const enabled=!!slot?.date;const prefix=`slot-${kind}`;const field=(key,label,type="text",placeholder="")=>`<div class="field"><label for="${prefix}-${key}">${label}</label><input id="${prefix}-${key}" type="${type}" ${type==="date"?"":type==="url"?'inputmode="url"':''} value="${esc(slot?.[key]||"")}" ${placeholder?`placeholder="${esc(placeholder)}"`:""}></div>`;
+ return `<section class="editor-slot" data-kind="${kind}">
+    <label class="slot-top" style="border-left:4px solid var(--${kind})"><input class="slot-enabled" type="checkbox" ${enabled?"checked":""} aria-label="${NAMES[kind]} aktivieren"><span>${NAMES[kind]}</span></label>
+    <div class="slot-fields" ${enabled?"":"hidden"}><div class="form-grid">
+    ${field("date","Prüfungsdatum *","date")}${field("von","Beginn","time")}${field("bis","Ende","time")}${field("pruefer","Prüfer*in")}
+    ${field("raum","Raum / Ort")}${field("anm","Anmeldung bis","date")}${field("abm","Abmeldung bis","date")}
+    <div class="field wide"><label for="${prefix}-link">FH-Prüfungslink (optional)</label><input id="${prefix}-link" type="url" inputmode="url" placeholder="https://..." value="${esc(slot?.link||"")}"></div>
+    <div class="field wide"><label for="${prefix}-note">Hinweis (optional)</label><textarea id="${prefix}-note" maxlength="800" placeholder="z. B. Online-Prüfung, Unterlagen mitbringen ...">${esc(slot?.note||"")}</textarea></div>
+    </div></div>
+  </section>`;
+}
+function openEditor(id){ editingSubjectId=id||null;const s=id?state.subjects.find(s=>s.id===id):null;
+  $("editHeading").textContent=s?"Fach bearbeiten":"Neues Fach";$("subjectName").value=s?.fach||"";$("subjectShort").value=s?.kurz||"";$("subjectSem").value=s?.sem||"";
+  $("slotsEditor").innerHTML=KINDS.map(k=>slotHTML(k,s?.slots?.[k])).join("");
+  $("slotsEditor").querySelectorAll(".slot-enabled").forEach(input=>input.addEventListener("change",()=>{input.closest(".editor-slot").querySelector(".slot-fields").hidden=!input.checked;}));
+  $("deleteSubjectBtn").hidden=!s;$("adminListView").hidden=true;$("calendarTitleView").hidden=true;$("editorView").hidden=false;
+  $("adminDialog").scrollTop=0;
+}
+function collectSubject(){const fach=$("subjectName").value.trim();if(!fach)throw new Error("Bitte eine Fachbezeichnung eingeben.");
+  const original=editingSubjectId?state.subjects.find(s=>s.id===editingSubjectId):null;
+  const s={id:original?.id||`fach-${newId()}`,fach,kurz:$("subjectShort").value.trim(),sem:$("subjectSem").value.trim(),slots:{}};
+  for(const kind of KINDS){const section=document.querySelector(`.editor-slot[data-kind="${kind}"]`);if(!section.querySelector(".slot-enabled").checked)continue;
+    const val=key=>$("slot-"+kind+"-"+key).value.trim();const date=val("date"),anm=val("anm"),abm=val("abm"),von=val("von"),bis=val("bis"),link=val("link");
+    if(!parseDate(date))throw new Error(`${NAMES[kind]}: Prüfungsdatum fehlt oder ist ungültig.`);
+    if(anm && (!parseDate(anm)||anm>date))throw new Error(`${NAMES[kind]}: Anmeldefrist liegt nach der Prüfung.`);
+    if(abm && (!parseDate(abm)||abm>date))throw new Error(`${NAMES[kind]}: Abmeldefrist liegt nach der Prüfung.`);
+    if(von&&bis&&bis<von)throw new Error(`${NAMES[kind]}: Die Endzeit liegt vor dem Beginn.`);
+    if(link&&!validLink(link))throw new Error(`${NAMES[kind]}: Der FH-Link muss mit https:// oder http:// beginnen.`);
+    s.slots[kind]={id:original?.slots?.[kind]?.id||`${s.id}-${kind}`,date,von,bis,pruefer:val("pruefer"),raum:val("raum"),anm,abm,link,note:val("note")};
+  }
+  if(!KINDS.some(k=>s.slots[k]))throw new Error("Bitte mindestens einen Prüfungstermin aktivieren und ein Datum eintragen.");
+  return s;
+}
+async function save(next,message){if(!cloud||!authUser)throw new Error("Bitte als Admin anmelden. Online-Speicherung ist noch nicht eingerichtet.");
+  await cloud.fs.setDoc(cloud.ref,{title:next.title,subjects:next.subjects,updatedAt:cloud.fs.serverTimestamp()});
+  state=next;renderAll();showToast(message);
+}
+function bindUI(){
+  document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{visible[b.dataset.filter]=!visible[b.dataset.filter];renderAll();}));
+  document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.close).close()));
+  for(const id of ["settingsDialog","loginDialog","adminDialog"])$(id).addEventListener("click",event=>{if(event.target===$(id))$(id).close();});
+  $("settingsBtn").addEventListener("click",()=>{$("themeChoice").value=prefs.theme;for(const k of KINDS)$(k+"Color").value=prefs.colors[k];switchDialog("settingsDialog");});
+  $("resetSettings").addEventListener("click",()=>{for(const k of KINDS)$(k+"Color").value=DEFAULT_COLORS[k];});
+  $("saveSettings").addEventListener("click",()=>{prefs.theme=$("themeChoice").value;for(const k of KINDS)prefs.colors[k]=$(k+"Color").value;
+    try{localStorage.setItem("stundenplan-settings-v1",JSON.stringify(prefs));}catch{}setPrefs();switchDialog(null);renderAll();showToast("Einstellungen gespeichert.");});
+  const onSystemTheme=()=>{if(prefs.theme==="auto")setPrefs();};matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",onSystemTheme);
+  $("adminBtn").addEventListener("click",()=>{if(authUser){showAdminList();switchDialog("adminDialog");return;}
+    $("loginUser").value=CONFIG.adminUsername;$("loginPassword").value="";
+    const disabled=!firebaseEnabled();$("loginNotice").hidden=!disabled;
+    $("loginNotice").textContent=disabled?"Die Website läuft derzeit als lokale Vorschau. Um Termine für alle zu speichern und den Admin-Login zu aktivieren, zuerst Firebase gemäß README.md einrichten.":"";
+    $("loginSubmit").disabled=disabled;switchDialog("loginDialog");});
+  $("loginForm").addEventListener("submit",async event=>{event.preventDefault();if(busy)return;
+    if($("loginUser").value.trim()!==CONFIG.adminUsername){showToast("Benutzername oder Passwort falsch.");return;}
+    if(!cloud){showToast("Firebase ist noch nicht verfügbar.");return;}
+    toggleBusy(true);
+    try{const session=await cloud.auth.signInWithEmailAndPassword(cloud.authInstance,CONFIG.adminEmail,$("loginPassword").value);
+      if(session.user.uid!==CONFIG.adminUid){await cloud.auth.signOut(cloud.authInstance);throw new Error("Dieses Konto hat keine Admin-Berechtigung.");}
+      authUser=session.user;$("loginPassword").value="";updateAdminButton();showAdminList();switchDialog("adminDialog");showToast("Als Admin angemeldet.");
+    }catch(e){showToast(e.message?.includes("Berechtigung")?e.message:"Anmeldung fehlgeschlagen. Benutzername und Passwort prüfen.");}
+    finally{toggleBusy(false);}
+  });
+  $("newSubjectBtn").addEventListener("click",()=>openEditor(null));
+  $("backToListBtn").addEventListener("click",showAdminList);
+  $("examForm").addEventListener("submit",async event=>{event.preventDefault();if(busy)return;
+    let subject;try{subject=collectSubject();}catch(e){showToast(e.message);return;}
+    const next=copy(state),i=next.subjects.findIndex(s=>s.id===subject.id);if(i>=0)next.subjects[i]=subject;else next.subjects.push(subject);
+    toggleBusy(true);try{await save(next,"Prüfungstermine veröffentlicht.");showAdminList();}catch(e){showToast(`Speichern fehlgeschlagen: ${e.message}`);}finally{toggleBusy(false);}
+  });
+  $("deleteSubjectBtn").addEventListener("click",async()=>{if(busy||!editingSubjectId)return;const s=state.subjects.find(s=>s.id===editingSubjectId);if(!s||!confirm(`Fach „${s.fach}“ mit allen Terminen wirklich löschen?`))return;
+    const next=copy(state);next.subjects=next.subjects.filter(s=>s.id!==editingSubjectId);toggleBusy(true);
+    try{await save(next,"Fach und Termine gelöscht.");showAdminList();}catch(e){showToast(`Löschen fehlgeschlagen: ${e.message}`);}finally{toggleBusy(false);}
+  });
+  $("editCalendarTitle").addEventListener("click",()=>{$("adminListView").hidden=true;$("editorView").hidden=true;$("calendarTitleView").hidden=false;$("calendarTitleInput").value=state.title||DEFAULT_TITLE;});
+  $("backFromTitle").addEventListener("click",showAdminList);
+  $("calendarTitleForm").addEventListener("submit",async event=>{event.preventDefault();if(busy)return;const title=$("calendarTitleInput").value.trim();if(!title)return;const next=copy(state);next.title=title;toggleBusy(true);
+    try{await save(next,"Kalendertitel gespeichert.");showAdminList();}catch(e){showToast(e.message);}finally{toggleBusy(false);}
+  });
+  $("logoutBtn").addEventListener("click",async()=>{if(cloud)await cloud.auth.signOut(cloud.authInstance);authUser=null;updateAdminButton();switchDialog(null);showToast("Abgemeldet.");});
+}
+function updateAdminButton(){$("adminBtn").textContent=authUser?"⚙ Verwaltung":"Admin";}
+async function connectCloud(){if(!firebaseEnabled()){
+    showStatus("Vorschaumodus: Die Beispieltermine sind sichtbar. Für gemeinsame Änderungen ist einmalig die Firebase-Einrichtung nötig.");return;
+  }
+  showStatus("Prüfungstermine werden geladen …");
+  try{
+    const base="https://www.gstatic.com/firebasejs/13.1.0/";
+    const [appMod,authMod,fsMod]=await Promise.all([import(base+"firebase-app.js"),import(base+"firebase-auth.js"),import(base+"firebase-firestore.js")]);
+    const app=appMod.initializeApp(CONFIG.firebase),authInstance=authMod.getAuth(app),db=fsMod.getFirestore(app);
+    const ref=fsMod.doc(db,"calendars","main");cloud={auth:authMod,authInstance,fs:fsMod,ref};
+    authMod.onAuthStateChanged(authInstance,u=>{authUser=u?.uid===CONFIG.adminUid?u:null;updateAdminButton();});
+    fsMod.onSnapshot(ref,snapshot=>{
+      if(snapshot.exists()){
+        const doc=snapshot.data();if(Array.isArray(doc.subjects))state.subjects=doc.subjects;if(typeof doc.title==="string")state.title=doc.title;
+        showStatus("");
+      }else showStatus("Noch keine Online-Daten gespeichert. Die vorhandenen Beispielprüfungen werden bei der ersten Admin-Speicherung veröffentlicht.");
+      renderAll();if($("adminDialog").open && !$("adminListView").hidden)showAdminList();
+    },error=>showStatus(`Online-Daten konnten nicht geladen werden: ${error.message}`,true));
+  }catch(e){showStatus(`Firebase-Verbindung fehlgeschlagen: ${e.message}`,true);cloud=null;}
+}
+setPrefs();bindUI();renderAll();connectCloud();
+setInterval(()=>{if(!document.hidden)renderAll();},60_000);
+</script>
+</body></html>
