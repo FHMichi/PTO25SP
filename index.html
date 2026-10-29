@@ -77,8 +77,8 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--t2
 .check .checkbox-icon{display:grid;place-items:center;border:1px solid currentColor;width:15px;height:15px;border-radius:3px;font-size:.7rem;line-height:1}
 .empty-state{border:1px dashed var(--line);padding:30px;text-align:center;color:var(--muted);background:var(--paper)}
 .status{font-size:.8rem;color:var(--muted);margin:-9px 0 20px}.status.error{color:var(--t1)}
-dialog{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:0;width:min(95vw,480px);max-height:min(94dvh,900px);overflow:auto}
-dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.large{width:min(96vw,890px)}
+dialog{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:0;width:min(96vw,610px);max-height:min(94dvh,900px);overflow:auto}
+dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.large{width:min(97vw,1120px)}
 .dialog-inner{padding:25px}.dialog-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
 .dialog-head h2{font-size:1.5rem;line-height:1.2;margin:0 0 5px;font-weight:800}.dialog-head p{margin:0;color:var(--muted);font-size:.87rem}
 .close{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:50%;width:34px;height:34px;font-size:1.3rem;line-height:1}
@@ -100,6 +100,8 @@ dialog::backdrop{background:rgba(7,13,23,.62);backdrop-filter:blur(3px)}dialog.l
 .slot-fields{padding:14px}.slot-fields[hidden]{display:none}.slot-disabled{opacity:.75}
 .notice{border-left:4px solid var(--t2);background:var(--bg);padding:10px 13px;margin:13px 0;font-size:.85rem;color:var(--muted)}
 #toast{position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 17px;border-radius:7px;box-shadow:var(--shadow);display:none;max-width:calc(100vw - 35px);text-align:center;font-size:.87rem}#toast.show{display:block}
+.dialog-feedback{margin:0 0 18px;padding:13px 15px;border-radius:9px;border:1px solid var(--t1);border-left:5px solid var(--t1);background:var(--bg);color:var(--ink);font-size:.93rem;font-weight:650;line-height:1.45;overflow-wrap:anywhere}
+.dialog-feedback[hidden]{display:none!important}
 [hidden]{display:none!important}:focus-visible{outline:3px solid var(--t2);outline-offset:3px}
 @media(max-width:700px){
 .wrap{padding:20px 13px 55px}.months,.months.single-view,.months.week-view{grid-template-columns:1fr;gap:13px}.month{padding:16px 13px}.month h2{font-size:1.18rem}
@@ -437,7 +439,32 @@ let registered = {};
 try { const saved=JSON.parse(localStorage.getItem("stundenplan-registriert-v1")||"{}"); if(saved&&typeof saved==="object") registered=saved; } catch{}
 try { const saved=JSON.parse(localStorage.getItem("stundenplan-settings-v1")||"{}"); if(["auto","light","dark"].includes(saved.theme)) prefs.theme=saved.theme; if(saved.colors) for(const k of KINDS) if(/^#[0-9a-f]{6}$/i.test(saved.colors[k])) prefs.colors[k]=saved.colors[k]; } catch{}
 
-function showToast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(showToast.timeout);showToast.timeout=setTimeout(()=>el.classList.remove("show"),3800);}
+function showToast(message){
+  clearTimeout(showToast.timeout);
+  const toast=$("toast");
+  const activeDialog=[...document.querySelectorAll("dialog")].find(d=>d.open);
+  document.querySelectorAll(".dialog-feedback").forEach(el=>{el.hidden=true;});
+  if(activeDialog){
+    toast.classList.remove("show");
+    let feedback=activeDialog.querySelector(".dialog-feedback");
+    if(!feedback){
+      feedback=document.createElement("div");
+      feedback.className="dialog-feedback";
+      feedback.setAttribute("role","alert");
+      feedback.setAttribute("aria-live","assertive");
+      const head=activeDialog.querySelector(".dialog-head");
+      head?.insertAdjacentElement("afterend",feedback);
+    }
+    feedback.textContent=message;
+    feedback.hidden=false;
+    feedback.scrollIntoView({block:"nearest",behavior:"auto"});
+    showToast.timeout=setTimeout(()=>{feedback.hidden=true;},6500);
+  }else{
+    toast.textContent=message;
+    toast.classList.add("show");
+    showToast.timeout=setTimeout(()=>toast.classList.remove("show"),4500);
+  }
+}
 function showStatus(message,isError=false){const el=$("connectionStatus");el.hidden=!message;el.textContent=message||"";el.classList.toggle("error",isError);}
 function setPrefs(){const dark=prefs.theme==="dark" || (prefs.theme==="auto" && matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=dark?"dark":"light";for(const k of KINDS)document.documentElement.style.setProperty(`--${k}`,prefs.colors[k]);}
 function allExams(){const items=[];for(const s of (state.subjects||[])){for(const kind of KINDS){const slot=s.slots?.[kind];if(!slot?.date || !parseDate(slot.date))continue;items.push({...slot,kind,fach:s.fach,kurz:s.kurz||"",sem:s.sem||"",id:slot.id || `${s.id}-${kind}`});}}
@@ -524,7 +551,11 @@ function renderAll(){const exams=allExams();$("pageTitle").textContent=state.tit
   document.querySelectorAll("[data-filter]").forEach(b=>b.setAttribute("aria-pressed",String(visible[b.dataset.filter])));
   renderNext();renderMonths();renderList();
 }
-function switchDialog(which){for(const id of ["settingsDialog","loginDialog","adminDialog"])if($(id).open)$(id).close();if(which)$(which).showModal();}
+function switchDialog(which){
+  document.querySelectorAll(".dialog-feedback").forEach(el=>{el.hidden=true;});
+  for(const id of ["settingsDialog","loginDialog","adminDialog"])if($(id).open)$(id).close();
+  if(which)$(which).showModal();
+}
 function toggleBusy(value){busy=value;for(const id of ["saveExamBtn","loginSubmit"])$(id).disabled=value;}
 function showAdminList(){ $("adminListView").hidden=false;$("editorView").hidden=true;$("calendarTitleView").hidden=true;const container=$("adminList");const sorted=[...state.subjects].sort((a,b)=>a.fach.localeCompare(b.fach,"de"));
   container.innerHTML=sorted.length?sorted.map(s=>{const summary=KINDS.map(k=>s.slots?.[k]?.date?`<span style="color:var(--${k});font-weight:750">${esc(NAMES[k])}: ${dateText(s.slots[k].date)}</span>`:null).filter(Boolean).join(" · ")||"Noch kein Termin";
